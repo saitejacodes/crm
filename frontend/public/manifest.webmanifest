@@ -1,0 +1,9 @@
+{
+  "name": "SV Fitness Gym",
+  "short_name": "SV Fitness",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#0c1f2b",
+  "icons": [{ "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" }, { "src": "/logo.png", "sizes": "225x225", "type": "image/png" }]
+}

@@ -1,0 +1,47 @@
+@import "@fontsource/barlow/400.css";
+@import "@fontsource/barlow/500.css";
+@import "@fontsource/barlow/600.css";
+@import "@fontsource/barlow-condensed/500.css";
+@import "@fontsource/barlow-condensed/600.css";
+@import "@fontsource/barlow-condensed/700.css";
+@import "tailwindcss";
+
+/* "Chalk & rubber": rubber-floor charcoal, chalk surfaces, weight-plate status colours */
+@theme {
+  --color-rubber: #0c1f2b;
+  --color-rubber-2: #14303f;
+  --color-rubber-3: #1f4255;
+  --color-chalk: #f4f5f3;
+  --color-line: #dfe2de;
+  --color-ink: #1c2124;
+  --color-muted: #646d72;
+
+  --color-plate-green: #1b8a4f;
+  --color-plate-green-soft: #e3f3ea;
+  --color-plate-yellow: #e0a800;
+  --color-plate-yellow-soft: #fdf3d4;
+  --color-plate-red: #c8283b;
+  --color-plate-red-soft: #fbe4e7;
+  --color-plate-blue: #22679a;
+  --color-plate-blue-dark: #1b557f;
+  --color-plate-blue-soft: #e3eff8;
+
+  --font-sans: "Barlow", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Barlow Condensed", "Barlow", ui-sans-serif, sans-serif;
+}
+
+html { -webkit-tap-highlight-color: transparent; }
+body { @apply bg-chalk text-ink antialiased; font-size: 15px; line-height: 1.5; }
+:focus-visible { outline: 2px solid var(--color-plate-blue); outline-offset: 2px; }
+
+.input {
+  @apply w-full rounded-md border border-line bg-white px-3 py-2 text-[15px] outline-none transition-colors
+    focus:border-plate-blue focus:ring-2 focus:ring-plate-blue-soft disabled:bg-chalk;
+}
+.label { @apply mb-1 block text-sm font-medium text-muted; }
+.h-display { font-family: var(--font-display); letter-spacing: -0.01em; }
+.tabular { font-variant-numeric: tabular-nums; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
