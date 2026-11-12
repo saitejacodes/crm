@@ -1,0 +1,32 @@
+# Fingerprint machines often speak plain HTTP and don't follow redirects,
+# so /iclock/* is served on port 80 as-is. Everything else goes to HTTPS.
+http://{$DOMAIN} {
+	handle /iclock/* {
+		reverse_proxy api:8000
+	}
+	handle {
+		redir https://{host}{uri} permanent
+	}
+}
+
+{$DOMAIN} {
+	encode zstd gzip
+	handle /api/* {
+		reverse_proxy api:8000
+	}
+	handle /iclock/* {
+		reverse_proxy api:8000
+	}
+	handle {
+		root * /srv
+		try_files {path} /index.html
+		file_server
+		@assets path /assets/*
+		header @assets Cache-Control "public, max-age=31536000, immutable"
+	}
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+	}
+}

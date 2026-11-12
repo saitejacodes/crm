@@ -1,0 +1,66 @@
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: gym
+      POSTGRES_USER: gym
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?set DB_PASSWORD in .env}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gym"]
+      interval: 10s
+      retries: 5
+
+  api:
+    build: ./backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+psycopg2://gym:${DB_PASSWORD}@db:5432/gym
+      JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET in .env}
+      OWNER_PHONE: ${OWNER_PHONE:?set OWNER_PHONE in .env}
+      OWNER_PASSWORD: ${OWNER_PASSWORD:?set OWNER_PASSWORD in .env}
+      OWNER_NAME: ${OWNER_NAME:-Gym Owner}
+      CORS_ORIGINS: https://${DOMAIN}
+      GYM_TIMEZONE: Asia/Kolkata
+      GYM_NAME: ${GYM_NAME:-SV Fitness Gym}
+      GYM_PHONE: ${GYM_PHONE:-}
+      GYM_ADDRESS: ${GYM_ADDRESS:-}
+      GYM_TIMINGS: ${GYM_TIMINGS:-}
+
+  web:
+    build: ./frontend
+    restart: unless-stopped
+    depends_on: [api]
+    environment:
+      DOMAIN: ${DOMAIN:?set DOMAIN in .env}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - caddy_data:/data
+      - caddy_config:/config
+
+  # Daily database backup, keeps the last 14 days in ./backups
+  backup:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    depends_on: [db]
+    environment:
+      PGPASSWORD: ${DB_PASSWORD}
+    volumes:
+      - ./backups:/backups
+    entrypoint: >
+      sh -c 'while true; do
+        pg_dump -h db -U gym gym | gzip > /backups/gym-$$(date +%F).sql.gz &&
+        find /backups -name "gym-*.sql.gz" -mtime +14 -delete;
+        sleep 86400; done'
+
+volumes:
+  pgdata:
+  caddy_data:
+  caddy_config:
